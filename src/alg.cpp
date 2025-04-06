@@ -1,5 +1,6 @@
 // Copyright 2021 NNTU-CS
 #include <algorithm>
+#include <unordered_map>
 
 int countPairs1(int* arr, int len, int value) {
     int count = 0;
@@ -20,26 +21,29 @@ int countPairs2(int* arr, int len, int value) {
         int sum = arr[left] + arr[right];
         if (sum == value) {
             if (arr[left] == arr[right]) {
-                count += (right - left) * (right - left + 1) / 2;
+                int n = right - left + 1;
+                count += n * (n - 1) / 2;
                 break;
             }
+
             int left_val = arr[left];
             int right_val = arr[right];
             int left_count = 0, right_count = 0;
-            
-            while (arr[left] == left_val && left <= right) {
-                left++;
-                left_count++;
+
+            while (left <= right && arr[left] == left_val) {
+                ++left;
+                ++left_count;
             }
-            while (arr[right] == right_val && left <= right) {
-                right--;
-                right_count++;
+            while (left <= right && arr[right] == right_val) {
+                --right;
+                ++right_count;
             }
+
             count += left_count * right_count;
         } else if (sum < value) {
-            left++;
+            ++left;
         } else {
-            right--;
+            --right;
         }
     }
     return count;
@@ -56,13 +60,13 @@ int countPairs3(int* arr, int len, int value) {
             if (arr[mid] == target) {
                 int j = mid;
                 while (j >= left && arr[j] == target) {
-                    count++;
-                    j--;
+                    ++count;
+                    --j;
                 }
                 j = mid + 1;
                 while (j <= right && arr[j] == target) {
-                    count++;
-                    j++;
+                    ++count;
+                    ++j;
                 }
                 break;
             } else if (arr[mid] < target) {
@@ -72,5 +76,20 @@ int countPairs3(int* arr, int len, int value) {
             }
         }
     }
+    return count;
+}
+
+int countPairsFast(int* arr, int len, int value) {
+    std::unordered_map<int, int> freq;
+    int count = 0;
+
+    for (int i = 0; i < len; ++i) {
+        int complement = value - arr[i];
+        if (freq.find(complement) != freq.end()) {
+            count += freq[complement];
+        }
+        freq[arr[i]]++;
+    }
+
     return count;
 }
